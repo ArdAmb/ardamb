@@ -1,12 +1,12 @@
 
 
-#include <DHT.h>
 #include <Wire.h>
 #include <SPI.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BMP280.h>
 #include <SD.h>
-#include <BH1750.h>
+#include "DHT.h"
+#include "BH1750.h"
+#include "Adafruit_Sensor.h"
+#include "Adafruit_BMP280.h"
 
 #define BMP_SCK 13
 #define BMP_MISO 12
