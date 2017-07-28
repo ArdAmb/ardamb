@@ -1,6 +1,8 @@
-#include <DHT.h>
+#include "DHT.h"
 #include <Wire.h>
 #include <BH1750.h> // Librería del sensor de luz BH1750
+
+#define DHTTYPE DHT22
 
 int SENSOR_TH = 2; // Pin digital al que va enchufado en el arduino
 int temp, humedad; // Variables que recogen la información
@@ -20,11 +22,11 @@ void loop(){
   temp = dht.readTemperature(); //Leemos la temperatura y la guardamos en nuestra variable temp
 
   //Mostramos por el monitor serial la información recogida
-  Serial.print(“Temperatura: “);
+  Serial.print("Temperatura: ");
   Serial.print(temp);
-  Serial.print(“ºC Humedad: “);
+  Serial.print("ºC Humedad: ");
   Serial.print(humedad);
-  Serial.println(“%”);
+  Serial.println("%");
 
   uint16_t lux = Luxometro.readLightLevel();//Realizamos una lectura del sensor BH1750
 
@@ -34,5 +36,4 @@ void loop(){
   Serial.println(" lx");
 
   delay(1000); //Retrasamos el loop 1s
-
 }
