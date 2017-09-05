@@ -1,0 +1,16 @@
+[submodule "BH1750"]
+	path = BH1750
+	url = https://github.com/ArdAmb/BH1750.git
+	branch = master
+[submodule "Adafruit_Sensor"]
+	path = Adafruit_Sensor
+	url = https://github.com/ArdAmb/Adafruit_Sensor.git
+	branch = master
+[submodule "Adafruit_BMP280_Library"]
+	path = Adafruit_BMP280_Library
+	url = https://github.com/ArdAmb/Adafruit_BMP280_Library.git
+	branch = master
+[submodule "DHT-sensor-library"]
+	path = DHT-sensor-library
+	url = https://github.com/ArdAmb/DHT-sensor-library.git
+	branch = master
