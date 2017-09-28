@@ -35,6 +35,9 @@ BH1750 Bh;
 char ssid[] = "ConRed_La Villa";
 char pass[] = "vmH42u6L2x26fqw";
 int status = WL_IDLE_STATUS;  //Para saber el estado de la Wifi
+char server[] = "192.168.0.108";
+
+WiFiClient client;
 
 void setup() {
   Serial.begin(9600);
@@ -91,6 +94,23 @@ void loop() {
   float altitud = bme.readAltitude(1013.25);
   float temperatura = bme.readTemperature();
 
+
+  //Si estoy conectado a la red wifi, se conecta al servidor
+  if (WiFi.status() == WL_CONNECTED) {
+      if (client.connect(server,8000)) {
+        client.println("GET /search?q=arduino HTTP/1.1");
+        client.println("Host: 192.168.0.108");
+        client.println("Connection: close");
+        client.println();
+      }
+
+      //Leemos la respuesta del servidor
+      while (client.available()) {
+        char c = client.read();
+        Serial.write(c);
+      }
+  }
+
   if(isnan(humedad) || isnan(temp)) {
     Serial.println("Fallo de lectura del sensor DHT");
     return;
@@ -139,11 +159,59 @@ void loop() {
   myFile.print(temp);
   myFile.println(";");
 
+
+  //Enviamos los datos por Wifi
+  if (WiFi.status() == WL_CONNECTED) {
+    if (client.connected()) {
+      post("seta","T_bar",String(temperatura));
+      post("seta","presion",String(presion));
+      post("seta","altitud",String(altitud));
+      post("seta","humedad",String(humedad));
+      post("seta","irradiancia",String(lux));
+      post("seta","humedad_suelo",String(suelo));
+      post("seta","T_DHT",String(temp));
+    }
+  }
+
   myFile.flush();
   myFile.close();
+
+  //Si se desconecta del servidor, cerramos la conexión
+
+
   delay(10000);
 
 }
+
+void post(String sensor_name, String seta_name, String valor)
+{
+  String PostData="sensor.name=\""+sensor_name+"\""; 
+  PostData=PostData+"&seta.name=\""+seta_name+"\"";
+  PostData=PostData+"&value=\""+valor"\"";
+
+  Serial.println(PostData);
+  if (client.connect()) {
+    Serial.println("connected");
+    client.println("POST /api/value/ HTTP/1.1");
+    client.println("Host: 192.168.0.108");
+    //client.println("User-Agent: Arduino/1.0");
+    client.println("Connection: close");
+    client.println("Content-Type: application/x-www-form-urlencoded;");
+    client.print("Content-Length: ");
+    client.println(PostData.length());
+    client.println();
+    client.println(PostData);
+
+    //Leemos la respuesta del servidor
+      while (client.available()) {
+        char c = client.read();
+        Serial.write(c);
+      }
+   } else {
+     Serial.println("connection failed");
+  }
+}
+
 
 void printWifiData() {
   IPAddress ip = WiFi.localIP();
