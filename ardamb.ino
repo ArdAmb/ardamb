@@ -10,6 +10,8 @@
 #include "BH1750.h"
 #include "Adafruit_Sensor.h"
 #include "Adafruit_BMP280.h"
+#include "WiFi.h"
+#include "SPI.h"
 
 #define BMP_SCK 13
 #define BMP_MISO 12
@@ -29,11 +31,35 @@ File myFile;
 Adafruit_BMP280 bme;
 BH1750 Bh;
 
+//WIFI
+char ssid[] = "ConRed_La Villa";
+char pass[] = "vmH42u6L2x26fqw";
+int status = WL_IDLE_STATUS;  //Para saber el estado de la Wifi
+
 void setup() {
   Serial.begin(9600);
   dht.begin();
   bme.begin(0x76);
   Bh.begin(BH1750_CONTINUOUS_HIGH_RES_MODE);
+
+  //Comprobamos si la wifi del arduino está puesta
+  if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println("WiFi shield not present");
+  }
+
+  int i = 0;
+  while ((status != WL_CONNECTED) or (i <= 3)) {
+    Serial.print("Intentando conectarse a la red");
+    Serial.println(ssid);
+    status = WiFi.begin(ssid,pass);
+
+    i++;
+    delay(3000);
+  }
+
+  Serial.print("CONECTADO A LA RED ");
+  printCurrentNet();
+  printWifiData();
 
   if(!SD.begin(chipSelect)){
     Serial.println("No hay MicroSD insertado");
@@ -116,5 +142,56 @@ void loop() {
   myFile.flush();
   myFile.close();
   delay(10000);
+
+}
+
+void printWifiData() {
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+
+  byte mac[6];
+  WiFi.macAddress(mac);
+  Serial.print("MAC address: ");
+  Serial.print(mac[5], HEX);
+  Serial.print(":");
+  Serial.print(mac[4], HEX);
+  Serial.print(":");
+  Serial.print(mac[3], HEX);
+  Serial.print(":");
+  Serial.print(mac[2], HEX);
+  Serial.print(":");
+  Serial.print(mac[1], HEX);
+  Serial.print(":");
+  Serial.println(mac[0], HEX);
+}
+
+void printCurrentNet() {
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  byte bssid[6];
+  WiFi.BSSID(bssid);
+  Serial.print("BSSID: ");
+  Serial.print(bssid[5], HEX);
+  Serial.print(":");
+  Serial.print(bssid[4], HEX);
+  Serial.print(":");
+  Serial.print(bssid[3], HEX);
+  Serial.print(":");
+  Serial.print(bssid[2], HEX);
+  Serial.print(":");
+  Serial.print(bssid[1], HEX);
+  Serial.print(":");
+  Serial.println(bssid[0], HEX);
+
+  long rssi = WiFi.RSSI();
+  Serial.print("intensidad de señal (RSSI):");
+  Serial.println(rssi);
+
+  byte encryption = WiFi.encryptionType();
+  Serial.print("Tipo de encriptado:");
+  Serial.println(encryption, HEX);
+  Serial.println();
 
 }
