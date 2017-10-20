@@ -35,7 +35,7 @@ BH1750 Bh;
 char ssid[] = "ConRed_La Villa";
 char pass[] = "vmH42u6L2x26fqw";
 int status = WL_IDLE_STATUS;  //Para saber el estado de la Wifi
-char server[] = "192.168.0.108";
+
 
 WiFiClient client;
 
@@ -44,6 +44,15 @@ void setup() {
   dht.begin();
   bme.begin(0x76);
   Bh.begin(BH1750_CONTINUOUS_HIGH_RES_MODE);
+  
+  //Antes de conectarse a la wifi definimos la IP, que habremos puesto previamente en la SD en un fichero llamado IP.txt
+  File myFileIP = SD.open("IP.txt",FILE_WRITE); //Abrimos o creamos el archivo llamado IP.txt donde debemos haber introducido la IP
+  if (myFileIP) //Si se ha abierto sin problemas asigna la IP que hay en el archivo
+  {
+    char server[] = myFileIP.print();
+
+  }
+  myFileIP.close();
 
   //Comprobamos si la wifi del arduino está puesta
   if (WiFi.status() == WL_NO_SHIELD) {
